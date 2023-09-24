@@ -47,7 +47,12 @@ function createMyVideo(stream) {
   addVideoStream(myVideo, stream);
 }
 
-currentPeer.on("open", (id) => socket.emit("join-room", ROOM_ID, id));
+currentPeer.on("open", (id) => {
+  console.log(ROOM_ID);
+  console.log(id);
+  console.log(socket);
+  socket.emit("join-room", ROOM_ID, id);
+});
 
 currentPeer.on("call", (call) => {
   call.answer(currentVideoStream);
