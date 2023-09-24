@@ -6,7 +6,8 @@ const sendBtn = document.querySelector(".send__btn");
 
 const currentPeer = new Peer({
   host: "https://noom.onrender.com",
-  port: "",
+  port: 443,
+  path: "/peerjs",
   secure: true,
 });
 const callToPeer = {};
