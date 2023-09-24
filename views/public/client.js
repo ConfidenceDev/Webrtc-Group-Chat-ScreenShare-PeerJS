@@ -4,7 +4,11 @@ const sendBtn = document.querySelector(".send__btn");
 
 //================= Initializing ========================
 
-const currentPeer = new Peer();
+const currentPeer = new Peer({
+  host: "",
+  port: "",
+  secure: true,
+});
 const callToPeer = {};
 
 let videoStream;

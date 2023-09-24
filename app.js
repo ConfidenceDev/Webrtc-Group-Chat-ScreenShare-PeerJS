@@ -13,7 +13,7 @@ const peerServer = ExpressPeerServer(server, {
   allow_discovery: true,
 });
 const { v4: uuidV4 } = require("uuid");
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 443;
 
 app.use("/peerjs", peerServer);
 
