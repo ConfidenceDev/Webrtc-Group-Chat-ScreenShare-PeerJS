@@ -67,10 +67,29 @@
   flex-direction: column;
 }
 
+.main__room {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.main__room input,
+.main__room button {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.main__room input {
+  padding: 4px;
+}
+
 .main__header {
-  padding-top: 5px;
+  padding-top: 10px;
   color: #f5f5f5;
   text-align: center;
+  border-top: 1px solid white;
 }
 
 .main__chat_window {
@@ -95,7 +114,7 @@
   color: #f5f5f5;
 }
 
-.leave_meeting {
+.invite {
   color: #eb534b;
 }
 

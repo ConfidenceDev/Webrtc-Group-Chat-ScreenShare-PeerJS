@@ -1,8 +1,13 @@
 const socket = io("/");
 const videoGrid = document.getElementById("video-grid");
+const chatField = document.querySelector("#chat_message");
 const sendBtn = document.querySelector(".send__btn");
+const roomField = document.querySelector(".room__field");
+const joinBtn = document.querySelector(".join__btn");
+const messages = document.querySelector(".messages");
 
 //================= Initializing ========================
+//const currentPeer = new Peer();
 
 const currentPeer = new Peer(socket.id, {
   host: "noom.onrender.com",
@@ -10,12 +15,15 @@ const currentPeer = new Peer(socket.id, {
   path: "/peerjs",
   secure: true,
 });
+
+const currentURL = window.location.href;
 const callToPeer = {};
 
 let videoStream;
 let currentVideoStream;
 let isSharing = false;
-const ROOM_ID = "test";
+let myId = null;
+let ROOM_ID;
 
 const nav =
   navigator.mediaDevices.getUserMedia ||
@@ -47,7 +55,7 @@ function createMyVideo(stream) {
   addVideoStream(myVideo, stream);
 }
 
-currentPeer.on("open", (id) => socket.emit("join-room", ROOM_ID, id));
+currentPeer.on("open", (id) => (myId = id));
 
 currentPeer.on("call", (call) => {
   call.answer(currentVideoStream);
@@ -80,15 +88,20 @@ socket.on("user-connected", (userId) =>
 socket.on("user-disconnected", (userId) => removeUserVideo(userId));
 
 socket.on("createMessage", (message, userId) => {
-  $("ul").append(`<li class="message"><b>${userId}</b><br/>${message}</li>`);
-  scrollDown();
+  const li = document.createElement("li");
+  li.innerHTML = `<div class="message"><b>${userId}</b><br/>${message}</div>`;
+
+  messages.append(li);
+  messages.scrollTop = messages.scrollHeight;
 });
 
 sendBtn.addEventListener("click", (e) => {
   e.preventDefault();
-  const text = $("input");
-  socket.emit("message", text.val());
-  text.val("");
+  const message = chatField.value;
+  if (message === "") return;
+
+  socket.emit("message", message);
+  chatField.value = null;
 });
 
 function connectToNewUser(userId, stream) {
@@ -172,6 +185,27 @@ function replaceMyVideo(isShared, stream) {
   }
 }
 
+joinBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  if (joinBtn.innerHTML === "Join Meeting") {
+    const room = roomField.value;
+    if (room === "" || myId == null) return;
+
+    roomField.enabled = false;
+    roomField.style = "opacity: 0.5";
+    ROOM_ID = room;
+    socket.emit("join-room", room, myId);
+    joinBtn.innerHTML = "Leave Meeting";
+  } else {
+    if (currentPeer) currentPeer.destroy();
+    if (socket) socket.disconnect();
+    setEmptyPage();
+    roomField.enabled = true;
+    joinBtn.innerHTML = "Join Meeting";
+    roomField.style = "opacity: 1";
+  }
+});
+
 //================= DOM Updates ========================
 const muteUnmute = () => {
   const enabled = currentVideoStream.getAudioTracks()[0].enabled;
@@ -195,10 +229,11 @@ const playStartStop = () => {
   }
 };
 
-const leaveMeeting = () => {
-  if (currentPeer) currentPeer.destroy();
-  if (socket) socket.disconnect();
-  setEmptyPage();
+const invite = () => {
+  const note = `Share the URL: ${
+    currentURL + ROOM_ID
+  } or Room Name: ${ROOM_ID}`;
+  alert(note);
 };
 
 function setMuteButton() {
@@ -235,11 +270,6 @@ function setStopShareButton() {
   document.querySelector(".main__share_button").innerHTML = `
     <span>Stop Share</span>
   `;
-}
-
-function scrollDown() {
-  let d = $(".main__chat_window");
-  d.scrollTop(d.prop("scrollHeight"));
 }
 
 function setEmptyPage() {
