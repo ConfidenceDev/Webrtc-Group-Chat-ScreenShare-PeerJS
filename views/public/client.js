@@ -132,6 +132,8 @@ function addOnStreamHandler(call, video) {
 
 function addVideoStream(video, stream) {
   video.srcObject = stream;
+  video.setAttribute("autoplay", "");
+  video.setAttribute("playsinline", "");
   video.addEventListener("loadedmetadata", () => {
     video.play();
   });
