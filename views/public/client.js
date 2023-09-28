@@ -220,6 +220,12 @@ function setRoom(room) {
   joinBtn.innerHTML = "Leave Meeting";
 }
 
+window.addEventListener("beforeunload", (e) => {
+  if (currentPeer) currentPeer.destroy();
+  if (socket) socket.disconnect();
+  ROOM_ID = null;
+});
+
 //================= DOM Updates ========================
 const muteUnmute = () => {
   const enabled = currentVideoStream.getAudioTracks()[0].enabled;
