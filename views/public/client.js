@@ -23,7 +23,6 @@ let videoStream;
 let currentVideoStream;
 let isSharing = false;
 let myId = null;
-let ROOM_ID;
 
 const nav =
   navigator.mediaDevices.getUserMedia ||
@@ -55,7 +54,15 @@ function createMyVideo(stream) {
   addVideoStream(myVideo, stream);
 }
 
-currentPeer.on("open", (id) => (myId = id));
+currentPeer.on("open", (id) => {
+  myId = id;
+  const roomURL = currentURL.split("/");
+  const room = roomURL[roomURL.length - 1];
+  if (room === "" || room === null) return;
+  ROOM_ID = room;
+  roomField.value = room;
+  setRoom(room);
+});
 
 currentPeer.on("call", (call) => {
   call.answer(currentVideoStream);
@@ -191,11 +198,7 @@ joinBtn.addEventListener("click", (e) => {
     const room = roomField.value;
     if (room === "" || myId == null) return;
 
-    roomField.enabled = false;
-    roomField.style = "opacity: 0.5";
-    ROOM_ID = room;
-    socket.emit("join-room", room, myId);
-    joinBtn.innerHTML = "Leave Meeting";
+    setRoom(room);
   } else {
     if (currentPeer) currentPeer.destroy();
     if (socket) socket.disconnect();
@@ -203,8 +206,17 @@ joinBtn.addEventListener("click", (e) => {
     roomField.enabled = true;
     joinBtn.innerHTML = "Join Meeting";
     roomField.style = "opacity: 1";
+    ROOM_ID = null;
   }
 });
+
+function setRoom(room) {
+  roomField.enabled = false;
+  roomField.style = "opacity: 0.5";
+  ROOM_ID = room;
+  socket.emit("join-room", room, myId);
+  joinBtn.innerHTML = "Leave Meeting";
+}
 
 //================= DOM Updates ========================
 const muteUnmute = () => {
@@ -262,13 +274,13 @@ function setPlayVideoButton() {
 
 function setShareButton() {
   document.querySelector(".main__share_button").innerHTML = `
-    <span>Share</span>
+    <span>Presentation</span>
   `;
 }
 
 function setStopShareButton() {
   document.querySelector(".main__share_button").innerHTML = `
-    <span>Stop Share</span>
+    <span>Stop Presentation</span>
   `;
 }
 

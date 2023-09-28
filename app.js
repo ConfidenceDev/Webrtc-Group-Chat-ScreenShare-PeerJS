@@ -16,13 +16,19 @@ const { v4: uuidV4 } = require("uuid");
 const PORT = process.env.PORT || 443;
 
 app.use("/peerjs", peerServer);
+app.set("view engine", "ejs");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "views/public")));
 
 app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/views/room.html");
+  res.render("room", { roomId: "" });
+});
+
+app.get("/:room", (req, res) => {
+  const room = req.params.room;
+  res.render("room", { roomId: room });
 });
 
 io.on("connection", (socket) => {
